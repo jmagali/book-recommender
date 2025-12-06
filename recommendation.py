@@ -97,14 +97,25 @@ def recommend_from_title(user_input):
     recommendations = []
     for i, similarity in top_similar:
         row = df.iloc[i]
+
+        # Fix subtitle handling
+        subtitle = row["subtitle"]
+        if isinstance(subtitle, float) or pd.isna(subtitle):
+            subtitle = ""
+        else:
+            subtitle = subtitle.title()
+
+        title = row["title"].title()
+        full_title = f"{title}: {subtitle}".strip(": ")
+
         recommendations.append({
-            "title": f"{row['title'].title()}: {row['subtitle'].title()}",
+            "title": full_title,
             "author": ", ".join([author.title() for author in eval(row["authors"])]),
             "description": row["description"],
             "thumbnail": row["thumbnail"],
             "year": row["published_year"],
             "rating": row["average_rating"],
-            "similarity": f"{float(similarity * 100):.2}%"
+            "similarity": f"{(similarity * 100):.2f}%"
         })
         
     return {
@@ -189,20 +200,30 @@ def recommend_from_query(query):
     # Find top similar books
     top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10)
     
-    # Build JSON output
+    # Build JSON payload
     recommendations = []
     for i, similarity in top_similar:
         row = df.iloc[i]
 
+        # Fix subtitle handling
+        subtitle = row["subtitle"]
+        if isinstance(subtitle, float) or pd.isna(subtitle):
+            subtitle = ""
+        else:
+            subtitle = subtitle.title()
+
+        title = row["title"].title()
+        full_title = f"{title}: {subtitle}".strip(": ")
+
         recommendations.append({
-            "title": f"{row['title'].title()}: {row['subtitle'].title()}",
+            "title": full_title,
             "author": ", ".join([author.title() for author in eval(row["authors"])]),
             "description": row["description"],
             "thumbnail": row["thumbnail"],
             "year": row["published_year"],
             "rating": row["average_rating"],
-            "similarity": f"{float(similarity * 100):.2}%"
-        })
+            "similarity": f"{(similarity * 100):.2f}%"
+    })
     
     return {
         "query": query,

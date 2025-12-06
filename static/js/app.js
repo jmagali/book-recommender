@@ -1,8 +1,16 @@
 function sendSearch() {
-    const query = document.getElementById("searchBox").value;
+    let query = document.getElementById("searchBox").value;
+    let btn = 1
+
+    if (query == "" || query == null) {
+        query = document.getElementById("sentanceBox").value;
+        btn = 2
+
+    }
 
     const formData = new FormData();
     formData.append("query", query);
+    formData.append("btn", btn);
 
     fetch("/search", {
         method: "POST",
@@ -10,13 +18,18 @@ function sendSearch() {
     })
     .then(res => res.json())
     .then(data => {
+
+        // TITLE SEARCH RESPONSE
+        const bestTitle = data.matched_title || data.query || "No match";
+        const bestScore = data.matched_score || "N/A";
+
         document.getElementById("bestMatch").innerHTML = `
-            <h3>Best Match: ${data.best_match}</h3>
-            <p>Similarity Score: ${data.best_score ?? "N/A"}</p>
+            <h3>Best Match: ${bestTitle}</h3>
+            <p>Similarity Score: ${bestScore}</p>
         `;
 
         const recDiv = document.getElementById("recommendations");
-        recDiv.innerHTML = ""; // reset
+        recDiv.innerHTML = "";
 
         data.recommendations.forEach(rec => {
             recDiv.innerHTML += `
@@ -26,9 +39,10 @@ function sendSearch() {
                     <p><strong>Author:</strong> ${rec.author}</p>
                     <p><strong>Year:</strong> ${rec.year}</p>
                     <p>${rec.description}</p>
-                    <p><strong>Similarity:</strong> ${rec.similarity.toFixed(3)}</p>
+                    <p><strong>Similarity:</strong> ${rec.similarity}</p>
                 </div>
             `;
         });
-    });
+    })
+    .catch(err => console.error("Fetch error:", err));
 }
