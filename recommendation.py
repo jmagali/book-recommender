@@ -46,7 +46,7 @@ def recommend_from_title(user_input):
             "thumbnail": row["thumbnail"],
             "year": row["published_year"],
             "rating": row["average_rating"],
-            "similarity": f"{float(similarity):.2}%"
+            "similarity": f"{float(similarity * 100):.2}%"
         })
         
     return {
@@ -85,7 +85,7 @@ def recommend_from_query(query):
             "thumbnail": row["thumbnail"],
             "year": row["published_year"],
             "rating": row["average_rating"],
-            "similarity": f"{float(similarity):.2}%"
+            "similarity": f"{float(similarity * 100):.2}%"
         })
     
     return {
