@@ -19,6 +19,80 @@ def get_top_n_similar(vector_list, target_vector, top_n=10, exclude_index=None):
     top_indices = np.argsort(scores)[-top_n:][::-1]  # highest first
     return [(i, scores[i]) for i in top_indices]
 
+def recommend_from_title(user_input):
+    user_input = user_input.strip().lower()
+    
+    # Use RapidFuzz for title matching
+    result = process.extractOne(user_input, titleTxt, scorer=fuzz.token_sort_ratio, score_cutoff=60)
+    
+    if result is None:
+        return {"error": "No close match found."}
+    
+    matched_title, score, row_index = result
+    target_vector = combined_vectors[row_index]
+    
+    # Find similar books
+    top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10,
+                                exclude_index=row_index)
+    
+    # Build JSON payload
+    recommendations = []
+    for i, similarity in top_similar:
+        row = df.iloc[i]
+        recommendations.append({
+            "title": f"{row['title'].title()}: {row['subtitle'].title()}",
+            "author": ", ".join(eval(row["authors"])),
+            "description": row["description"],
+            "thumbnail": row["thumbnail"],
+            "year": row["published_year"],
+            "rating": row["average_rating"],
+            "similarity": f"{float(similarity):.2}%"
+        })
+        
+    return {
+        "matched_title": matched_title,
+        "matched_score": score,
+        "matched_index": int(row_index),
+        "recommendations": recommendations
+    }
+    
+def recommend_from_query(query):
+    # Encode the query into vectors
+    query_vectorDes = model.encode([query])[0]
+    query_vectorAuthor = np.zeros_like(query_vectorDes)  # no author info
+    query_vectorGenre = np.zeros_like(query_vectorDes)   # no genre info
+    
+    # Combine with same weights as books
+    target_vector = (query_vectorDes * desc_weight +
+                     query_vectorGenre * genre_weight +
+                     query_vectorAuthor * author_weight)
+    
+    # Normalize
+    target_vector = normalize(target_vector.reshape(1, -1))[0]
+    
+    # Find top similar books
+    top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10)
+    
+    # Build JSON output
+    recommendations = []
+    for i, similarity in top_similar:
+        row = df.iloc[i]
+
+        recommendations.append({
+            "title": f"{row['title'].title()}: {row['subtitle'].title()}",
+            "author": ", ".join(eval(row["authors"])),
+            "description": row["description"],
+            "thumbnail": row["thumbnail"],
+            "year": row["published_year"],
+            "rating": row["average_rating"],
+            "similarity": f"{float(similarity):.2}%"
+        })
+    
+    return {
+        "query": query,
+        "recommendations": recommendations
+    }
+
 # PRE-COMPUTATION
 csv_file = "./data/processed_data.csv"
 description_column = "description"
@@ -75,50 +149,50 @@ combined_vectors = (vectorsDes * desc_weight + vectorsGenre * genre_weight + vec
 # Normalize combined vectors (turn into unit vector equivalent)
 combined_vectors = normalize(combined_vectors)
 
-# Get user interest/book
-print("\nDo you want to pick a row from CSV or type a query?")
-print("1 = Type a book title")
-print("2 = Type a custom sentence")
-choice = input("Enter 1 or 2: ")
+# # Get user interest/book
+# print("\nDo you want to pick a row from CSV or type a query?")
+# print("1 = Type a book title")
+# print("2 = Type a custom sentence")
+# choice = input("Enter 1 or 2: ")
 
-if choice.strip() == "1":
-    user_input = input("Enter book name: ").strip().lower()
+# if choice.strip() == "1":
+#     user_input = input("Enter book name: ").strip().lower()
     
-    # Use RapidFuzz for title matching
-    result = process.extractOne(user_input, titleTxt, scorer=fuzz.token_sort_ratio, score_cutoff=60)
+#     # Use RapidFuzz for title matching
+#     result = process.extractOne(user_input, titleTxt, scorer=fuzz.token_sort_ratio, score_cutoff=60)
     
-    if result is None:
-        print("Could not find a close match.")
-        sys.exit()
+#     if result is None:
+#         print("Could not find a close match.")
+#         sys.exit()
     
-    matched_title, score, row_index = result
-    print(f"Closest match: {titleTxt[row_index]} (Score: {score})")
-    target_vector = combined_vectors[row_index]
-else:
-    query = input("Enter your sentence/query: ")
+#     matched_title, score, row_index = result
+#     print(f"Closest match: {titleTxt[row_index]} (Score: {score:.2f}%)")
+#     target_vector = combined_vectors[row_index]
+# else:
+#     query = input("Enter your sentence/query: ")
     
-    # Encode all three features for the query
-    query_vectorDes = model.encode([query])[0]
-    query_vectorAuthor = np.zeros_like(query_vectorDes)  # no author info for query
-    query_vectorGenre = np.zeros_like(query_vectorDes)   # no genre info for query
+#     # Encode all three features for the query
+#     query_vectorDes = model.encode([query])[0]
+#     query_vectorAuthor = np.zeros_like(query_vectorDes)  # no author info for query
+#     query_vectorGenre = np.zeros_like(query_vectorDes)   # no genre info for query
     
-    # Combine with same weights
-    target_vector = (query_vectorDes * desc_weight +
-                     query_vectorGenre * genre_weight +
-                     query_vectorAuthor * author_weight)
+#     # Combine with same weights
+#     target_vector = (query_vectorDes * desc_weight +
+#                      query_vectorGenre * genre_weight +
+#                      query_vectorAuthor * author_weight)
     
-    # Normalize
-    target_vector = normalize(target_vector.reshape(1, -1))[0]
-    print(f"\nUsing your query as target: {query}")
+#     # Normalize
+#     target_vector = normalize(target_vector.reshape(1, -1))[0]
+#     print(f"\nUsing your query as target: {query}")
 
-# Find similar books
-top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10,
-                                exclude_index=row_index if choice=="1" else None)
+# # Find similar books
+# top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10,
+#                                 exclude_index=row_index if choice=="1" else None)
 
-# display similar books
-print("\nTop 10 similar rows:")
-for i, score in top_similar:
-    formatted_title = df['title'][i].title()
-    print(f"Title: {formatted_title} (Similarity: {score:.4f})")
+# # display similar books
+# print("\nTop 10 similar rows:")
+# for i, score in top_similar:
+#     formatted_title = df['title'][i].title()
+#     print(f"Title: {formatted_title} (Similarity: {score:.2f}%)")
     
 
