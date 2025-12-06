@@ -1,6 +1,8 @@
 import os
+import sys
 import numpy as np
 import pandas as pd
+from rapidfuzz import process, fuzz
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity # Finds the angle between vectors through dot product
 from sklearn.preprocessing import normalize # Finds the unit vector of a vector
@@ -37,7 +39,7 @@ genreTxt = df['genre_list'].apply(lambda genres: " ".join(eval(genres)) if isins
 vector_files = {
     "description": "./data/vectors/vectorsDes.npy",
     "author": "./data/vectors/vectorsAuthor.npy",
-    "genre": "./data/vectors/vectorsGenre.npy"
+    "genre": "./data/vectors/vectorsGenre.npy",
 }
 
 # Load vectors if they exist
@@ -79,11 +81,18 @@ print("2 = Type a custom sentence")
 choice = input("Enter 1 or 2: ")
 
 if choice.strip() == "1":
-    row_index = titleTxt.index(input("Enter book name: ").strip().lower())
+    user_input = input("Enter book name: ").strip().lower()
+    
+    # Use RapidFuzz for title matching
+    result = process.extractOne(user_input, titleTxt, scorer=fuzz.token_sort_ratio, score_cutoff=60)
+    
+    if result is None:
+        print("Could not find a close match.")
+        sys.exit()
+    
+    matched_title, score, row_index = result
+    print(f"Closest match: {titleTxt[row_index]} (Score: {score})")
     target_vector = combined_vectors[row_index]
-        
-    # Get similar books (excludes book title)
-    top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10, exclude_index=row_index)
 else:
     query = input("Enter your sentence/query: ")
     
@@ -101,8 +110,9 @@ else:
     target_vector = normalize(target_vector.reshape(1, -1))[0]
     print(f"\nUsing your query as target: {query}")
 
-    # Get similar books
-    top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10)
+# Find similar books
+top_similar = get_top_n_similar(combined_vectors, target_vector, top_n=10,
+                                exclude_index=row_index if choice=="1" else None)
 
 # display similar books
 print("\nTop 10 similar rows:")
