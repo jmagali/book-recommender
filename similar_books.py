@@ -79,7 +79,7 @@ print("2 = Type a custom sentence")
 choice = input("Enter 1 or 2: ")
 
 if choice.strip() == "1":
-    row_index = titleTxt.index(input("Enter book name: ").strip())
+    row_index = titleTxt.index(input("Enter book name: ").strip().lower())
     target_vector = combined_vectors[row_index]
         
     # Get similar books (excludes book title)
