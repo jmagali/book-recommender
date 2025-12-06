@@ -107,6 +107,7 @@ else:
 # display similar books
 print("\nTop 10 similar rows:")
 for i, score in top_similar:
-    print(f"Title: {df['title'][i]} (Similarity: {score:.4f})")
+    formatted_title = df['title'][i].title()
+    print(f"Title: {formatted_title} (Similarity: {score:.4f})")
     
 
