@@ -79,7 +79,7 @@ print("2 = Type a custom sentence")
 choice = input("Enter 1 or 2: ")
 
 if choice.strip() == "1":
-    row_index = titleTxt.index(input("Enter book name: ").strip())
+    row_index = titleTxt.index(input("Enter book name: ").strip().lower())
     target_vector = combined_vectors[row_index]
         
     # Get similar books (excludes book title)
@@ -107,6 +107,7 @@ else:
 # display similar books
 print("\nTop 10 similar rows:")
 for i, score in top_similar:
-    print(f"Title: {df['title'][i]} (Similarity: {score:.4f})")
+    formatted_title = df['title'][i].title()
+    print(f"Title: {formatted_title} (Similarity: {score:.4f})")
     
 
