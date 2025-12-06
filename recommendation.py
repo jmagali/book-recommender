@@ -19,6 +19,7 @@ def get_top_n_similar(vector_list, target_vector, top_n=10, exclude_index=None):
     top_indices = np.argsort(scores)[-top_n:][::-1]  # highest first
     return [(i, scores[i]) for i in top_indices]
 
+# PRE-COMPUTATION
 csv_file = "./data/processed_data.csv"
 description_column = "description"
 title_column = "title"
