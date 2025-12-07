@@ -58,6 +58,8 @@ button:active {
   background-color: var(--buttons-active);
 }
 
+/* Recommendations */
+
 .result-box,
 .book-card {
   background: white;
@@ -80,4 +82,43 @@ button:active {
 
 .hidden {
   visibility: hidden;
+}
+
+/* FOOTER */
+
+.footer {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  height: 3em;
+  width: 100vw;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--buttons-active);
+  color: black;
+  border-top: 2px solid black;
+}
+
+.footer p {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.github {
+  height: 3.5vh;
+  width: auto;
+  margin-left: 10px;
+}
+
+.github:hover {
+  height: 3.7vh;
+}
+
+.github:active {
+  height: 3.8vh;
 }
