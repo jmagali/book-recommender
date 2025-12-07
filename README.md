@@ -54,5 +54,31 @@ It then finds the most similar books using cosine similarity and fuzzy title mat
 
 ## Director Structure
 ```bash
-
+.
+├── data/
+│   ├── vectors/
+│   │   ├── combined_vectors.npy
+│   │   ├── vectorsAuthor.npy
+│   │   ├── vectorsDes.npy
+│   │   ├── vectorsGenre.npy
+│   │   └── vectorsTitle.npy
+│   ├── genre_list.csv
+│   ├── processed_data.csv
+│   └── unprocessed_data.csv
+├── static/
+│   ├── css/
+│   │   └── style.css
+│   ├── js/
+│   │   └── app.js
+│   └── img/
+│       ├── book-education-learn-svgrepo-com.svg
+│       └── github-mark.svg
+├── templates/
+│   └── index.html
+├── .gitignore
+├── .gitattributes
+├── app.py
+├── process_data.py
+├── recommendations.py
+└── requirements.txt
 ```
