@@ -1,3 +1,12 @@
+/* ROOT VARIABLES */
+:root {
+  --buttons: white;
+  --buttons-hover: rgb(231, 231, 231);
+  --buttons-active: rgb(204, 204, 204);
+}
+
+/* BODY */
+
 body {
   font-family: Arial, sans-serif;
   background: #f7f7f7;
@@ -9,14 +18,44 @@ body {
   margin: auto;
 }
 
+/* HEADER */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 input {
   width: 60%;
   padding: 12px;
-  margin-right: 10px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #ccc;
+  background-color: var(--buttons);
 }
 
 button {
   padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #ccc;
+  background-color: var(--buttons);
+  transition: transform 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-0.1em);
+  background-color: var(--buttons-hover);
+}
+
+button:active {
+  transform: translateY(-0.3em);
+  background-color: var(--buttons-active);
 }
 
 .result-box,
