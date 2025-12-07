@@ -1,6 +1,10 @@
 function sendSearch() {
   const query = document.getElementById("searchBox").value;
   const modeBtn = document.getElementById("mode");
+  const bestMatch = document.getElementById("bestMatch");
+  const recTitle = document.getElementById("recommendations_title");
+  const recContainer = document.getElementById("recommendations");
+  const hiddenItems = [bestMatch, recTitle, recContainer];
   let mode;
 
   if (modeBtn.classList.contains("title")) {
@@ -8,6 +12,11 @@ function sendSearch() {
   } else {
     mode = 2;
   }
+
+  // Make items visible
+  hiddenItems.forEach((element) => {
+    element.classList.remove("hidden");
+  });
 
   // Send data to backend
   const formData = new FormData();

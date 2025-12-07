@@ -42,6 +42,7 @@ def recommend_book(user_input, mode):
         "description": "./data/vectors/vectorsDes.npy",
         "author": "./data/vectors/vectorsAuthor.npy",
         "genre": "./data/vectors/vectorsGenre.npy",
+        "title": "./data/vectors/vectorsTitle.npy",
         "combined": "./data/vectors/combined_vectors.npy"
     }
 
@@ -57,20 +58,23 @@ def recommend_book(user_input, mode):
         vectorsDes = model.encode(descriptionTxt, batch_size=256, show_progress_bar=True)
         vectorsAuthor = model.encode(authorTxt, batch_size=256, show_progress_bar=True)
         vectorsGenre = model.encode(genreTxt, batch_size=256, show_progress_bar=True)
+        vectorsTitle = model.encode(titleTxt, batch_size=256, show_progress_bar=True)
 
         # Save vectors for future runs
         np.save(vector_files["description"], vectorsDes)
         np.save(vector_files["author"], vectorsAuthor)
         np.save(vector_files["genre"], vectorsGenre)
+        np.save(vector_files["title"], vectorsTitle)
         print("Vectors saved to disk.")
 
         # Vector weights
         desc_weight = 1.0
         genre_weight = 0.3  # very small weight for genre
+        title_weight = 0.4
         author_weight = 0.6 # small weight for author
 
         # Sum the vectors
-        combined_vectors = (vectorsDes * desc_weight + vectorsGenre * genre_weight + vectorsAuthor * author_weight)
+        combined_vectors = (vectorsDes * desc_weight + vectorsGenre * genre_weight + vectorsAuthor * author_weight + vectorsTitle * title_weight)
 
         # Normalize combined vectors (turn into unit vector equivalent)
         combined_vectors = normalize(combined_vectors)
