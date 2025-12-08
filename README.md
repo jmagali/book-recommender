@@ -83,3 +83,5 @@ It then finds the most similar books using cosine similarity and fuzzy title mat
 └── requirements.txt
 └── README.md
 ```
+
+Dataset from <a href="https://www.kaggle.com/datasets/abdallahwagih/books-dataset" target="_blank" rel="noopener noreferrer">Kaggle</a>
